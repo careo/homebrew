@@ -21,7 +21,7 @@ class Spidermonkey <Formula
     nspr_dep = Formula.factory 'nspr'
     ENV.deparallelize
     Dir.chdir "src" do
-      system "make JS_DIST=#{nspr_dep.prefix} JS_THREADSAFE=1 -f Makefile.ref"
+      system "make JS_DIST=#{nspr_dep.prefix} JS_THREADSAFE=1 DEFINES=-DJS_C_STRINGS_ARE_UTF8 -f Makefile.ref"
       system "make JS_DIST=#{prefix} -f Makefile.ref export"
       system "ranlib #{prefix}/lib/libjs.a"
     end

@@ -60,14 +60,6 @@ class TestZip <Formula
   end
 end
 
-class TestBallValidMd5 <TestBall
-  @md5='71aa838a9e4050d1876a295a9e62cbe6'
-end
-
-class TestBallInvalidMd5 <TestBall
-  @md5='61aa838a9e4050d1876a295a9e62cbe6'
-end
-
 class TestBadVersion <TestBall
   @version="versions can't have spaces"
 end
@@ -269,12 +261,58 @@ class BeerTasting <Test::Unit::TestCase
   end
 
   def test_md5
-    assert_nothing_raised { nostdout { TestBallValidMd5.new.brew {} } }
+    valid_md5 = Class.new(TestBall) do
+      @md5='71aa838a9e4050d1876a295a9e62cbe6'
+    end
+
+    assert_nothing_raised { nostdout { valid_md5.new.brew {} } }
   end
   
   def test_badmd5
+    invalid_md5 = Class.new(TestBall) do
+      @md5='61aa838a9e4050d1876a295a9e62cbe6'
+    end
+
     assert_raises RuntimeError do
-      nostdout { TestBallInvalidMd5.new.brew {} } 
+      nostdout { invalid_md5.new.brew {} }
+    end
+  end
+
+  def test_sha1
+    valid_sha1 = Class.new(TestBall) do
+      @sha1='6ea8a98acb8f918df723c2ae73fe67d5664bfd7e'
+    end
+
+    assert_nothing_raised { nostdout { valid_sha1.new.brew {} } }
+  end
+
+  def test_badsha1
+    invalid_sha1 = Class.new(TestBall) do
+      @sha1='7ea8a98acb8f918df723c2ae73fe67d5664bfd7e'
+    end
+
+    assert_raises RuntimeError do
+      nostdout { invalid_sha1.new.brew {} }
+    end
+  end
+
+  def test_sha256
+    valid_sha256 = Class.new(TestBall) do
+      @sha256='ccbf5f44743b74add648c7e35e414076632fa3b24463d68d1f6afc5be77024f8'
+    end
+
+    assert_nothing_raised do
+      nostdout { valid_sha256.new.brew {} }
+    end
+  end
+
+  def test_badsha256
+    invalid_sha256 = Class.new(TestBall) do
+      @sha256='dcbf5f44743b74add648c7e35e414076632fa3b24463d68d1f6afc5be77024f8'
+    end
+
+    assert_raises RuntimeError do
+      nostdout { invalid_sha256.new.brew {} }
     end
   end
   
@@ -375,6 +413,15 @@ class BeerTasting <Test::Unit::TestCase
     assert f <= 10.6
     assert_equal 10.5, f-0.1
     assert_equal 10.7, f+0.1
+  end
+
+  def test_arch_for_command
+    # NOTE only works on Snow Leopard I bet, pick a better file!
+    arches=arch_for_command '/usr/bin/svn'
+    assert_equal 3, arches.count
+    assert arches.include?(:x86_64)
+    assert arches.include?(:i386)
+    assert arches.include?(:ppc7400)
   end
 
   def test_pathname_plus_yeast

@@ -35,7 +35,7 @@ def make url
   template=<<-EOS
             require 'brewkit'
 
-            class #{Formula.class $1} <Formula
+            class #{Formula.class_s $1} <Formula
               @url='#{url}'
               @homepage=''
               @md5=''
@@ -141,31 +141,6 @@ def clean f
   Cleaner.new f
   # remove empty directories TODO Rubyize!
   `perl -MFile::Find -e"finddepth(sub{rmdir},'#{f.prefix}')"`
-end
-
-
-def install f
-  f.brew do
-    if ARGV.flag? '--interactive'
-      ohai "Entering interactive mode"
-      puts "Type `exit' to return and finalize the installation"
-      puts "Install to this prefix: #{f.prefix}"
-      interactive_shell
-      nil
-    elsif ARGV.include? '--help'
-      system './configure --help'
-      exit $?
-    else
-      f.prefix.mkpath
-      beginning=Time.now
-      f.install
-      %w[README ChangeLog COPYING LICENSE COPYRIGHT AUTHORS].each do |file|
-        FileUtils.mv "#{file}.txt", file rescue nil
-        f.prefix.install file rescue nil
-      end
-      return Time.now-beginning
-    end
-  end
 end
 
 

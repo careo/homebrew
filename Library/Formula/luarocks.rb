@@ -8,7 +8,8 @@ class Luarocks <Formula
   depends_on 'lua'
 
   def install
-    system "./configure", "--prefix=#{prefix}"
+    system "./configure", "--prefix=#{prefix}", "--with-lua=/usr/local", "--with-downloader=curl", "--with-md5-checker=openssl"
+    
     system "make"
     system "make install"
   end
